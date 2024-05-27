@@ -1,0 +1,10 @@
+{
+  "profiles": {
+    "WeatherCollector_TimelapseCreator (Package)": {
+      "commandName": "MsixPackage"
+    },
+    "WeatherCollector_TimelapseCreator (Unpackaged)": {
+      "commandName": "Project"
+    }
+  }
+}

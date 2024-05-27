@@ -1,0 +1,99 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Page
+    x:Class="WeatherCollector_TimelapseCreator.Views.MainSelectionPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:WeatherCollector_TimelapseCreator.Views"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d"
+    xmlns:wuc="using:WinUICommunity">
+    <Grid Padding="30">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="3*"></ColumnDefinition>
+            <ColumnDefinition Width="Auto"></ColumnDefinition>
+            <ColumnDefinition Width="1*"></ColumnDefinition>
+        </Grid.ColumnDefinitions>
+
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"></RowDefinition>
+                <RowDefinition Height="*"></RowDefinition>
+                <RowDefinition Height="Auto"></RowDefinition>
+            </Grid.RowDefinitions>
+            
+            <TextBlock FontSize="25">Creating the timelapse</TextBlock>
+
+            <Grid Grid.Row="1" VerticalAlignment="Center">
+                <StackPanel> <!-- Spacing="5" -->
+                    <StackPanel Style="{ThemeResource StackPanelStyle}" Margin="10" Padding="10" Spacing="10" Orientation="Vertical">
+                        <TextBlock>Range options</TextBlock>
+
+                        <StackPanel Orientation="Horizontal" Spacing="5">
+                            <TextBlock VerticalAlignment="Center">From:</TextBlock>
+                            <CalendarDatePicker Name="FromCDP"></CalendarDatePicker>
+                        </StackPanel>
+                        <StackPanel Orientation="Horizontal" Spacing="5">
+                            <TextBlock VerticalAlignment="Center">To:</TextBlock>
+                            <CalendarDatePicker Name="ToCDP"></CalendarDatePicker>
+                        </StackPanel>
+                    </StackPanel>
+
+                    <StackPanel Style="{ThemeResource StackPanelStyle}" Margin="10" Padding="10" Spacing="10" Orientation="Vertical">
+                        <TextBlock>Watermark options</TextBlock>
+                        <CheckBox Content="Show watermark" Name="ShowWatermark"></CheckBox>
+                        <TextBox PlaceholderText="Watermark content" Name="Watermark"></TextBox>
+                    </StackPanel>
+
+                    <StackPanel Style="{ThemeResource StackPanelStyle}" Margin="10" Padding="10" Spacing="10" Orientation="Vertical">
+                        <TextBlock>Date and Time options</TextBlock>
+                        <CheckBox Content="Show date and time" Name="ShowDT"></CheckBox>
+                        <StackPanel Orientation="Horizontal" Spacing="5">
+                            <TextBlock VerticalAlignment="Center">Format:</TextBlock>
+                            <ComboBox HorizontalAlignment="Stretch" Name="DTFormat">
+                                <ComboBoxItem IsSelected="True">dd/mm/yyyy hh:mm</ComboBoxItem>
+                                <ComboBoxItem>mm/dd/yyyy hh:mm</ComboBoxItem>
+                                <ComboBoxItem>hh:mm</ComboBoxItem>
+                                <ComboBoxItem>dd/mm/yyyy</ComboBoxItem>
+                                <ComboBoxItem>mm/dd/yyyy</ComboBoxItem>
+                            </ComboBox>
+                        </StackPanel>
+                    </StackPanel>
+
+                    <StackPanel Style="{ThemeResource StackPanelStyle}" Margin="10" Padding="10" Spacing="10" Orientation="Vertical">
+                        <TextBlock>Data options</TextBlock>
+                        <CheckBox Content="Show data" Name="ShowData"></CheckBox>
+                    </StackPanel>
+
+                    <StackPanel Style="{ThemeResource StackPanelStyle}" Margin="10" Padding="10" Spacing="10" Orientation="Vertical">
+                        <TextBlock>Timelapse options</TextBlock>
+                        <TextBox Name="FrameRate" Text="30"></TextBox>
+                    </StackPanel>
+                </StackPanel>
+            </Grid>
+
+            <Grid Grid.Row="2" Style="{ThemeResource GridPanel}">
+                <Button Width="100" Margin="10" Name="RefreshBtn" Click="RefreshBtn_Click">Refresh</Button>
+                <StackPanel HorizontalAlignment="Right" Orientation="Horizontal" Spacing="10" Padding="10">
+                    <Button Width="150" Name="CancelBtn" Click="CancelBtn_Click">Cancel</Button>
+                    <Button Width="150" Style="{ThemeResource AccentButtonStyle}" Name="CreateBtn" Click="CreateBtn_Click">Create</Button>
+                </StackPanel>
+            </Grid>
+        </Grid>
+        <wuc:Divider Grid.Column="1" Orientation="Vertical"></wuc:Divider>
+        
+        <Grid Grid.Column="2" Style="{ThemeResource GridPanel}" Padding="15">
+            <StackPanel>
+                <TextBlock FontSize="20">Preview</TextBlock>
+                <Image Name="Preview" HorizontalAlignment="Stretch"></Image>
+                <!-- Height="300" -->
+                <wuc:Divider></wuc:Divider>
+                <TextBlock FontSize="20">Server information</TextBlock>
+                <TextBlock Name="ETA">Estimated time: 00:00:00</TextBlock>
+                <TextBlock Name="TI">Total images: 0</TextBlock>
+                <TextBlock Name="SRT">Server response time: 00:00:00</TextBlock>
+                <TextBlock Name="IGT">Image generation time: 00:00:00</TextBlock>
+            </StackPanel>
+        </Grid>
+    </Grid>
+</Page>
