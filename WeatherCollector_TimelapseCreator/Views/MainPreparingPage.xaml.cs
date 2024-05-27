@@ -54,6 +54,7 @@ namespace WeatherCollector_TimelapseCreator.Views
             StepPB.Value = e.Step;
             PStep.Text = e.PStepText;
             PStepPB.Value = e.ProgressStep;
+            PStepPB.IsIndeterminate = e.Indeterminate;
         }
     }
 }

@@ -63,6 +63,7 @@ namespace WeatherCollector_TimelapseCreator.Core.Generation
             public int Step = 0;
             public string PStepText = "Downloading images... (0/288)";
             public int ProgressStep = 0;
+            public bool Indeterminate = false;
         }
 
         public async Task StartGeneration(IProgress<Progress> progress)
@@ -184,7 +185,7 @@ namespace WeatherCollector_TimelapseCreator.Core.Generation
                 //Debug.WriteLine(_images[i].PathToModifiedImage);
                 Debug.WriteLine(Path.Combine(localStateFolderPath, _images[i].PathToModifiedImage.Substring(_images[i].PathToModifiedImage.IndexOf("Roaming", StringComparison.OrdinalIgnoreCase))));
                 //_imgs.Add(Path.Combine(localStateFolderPath, _images[i].PathToModifiedImage));
-                _imgs.Add(Path.Combine(localStateFolderPath, _images[i].PathToModifiedImage.Substring(_images[i].PathToModifiedImage.IndexOf("Roaming", StringComparison.OrdinalIgnoreCase))));
+                _imgs.Add("file '" + Path.Combine(localStateFolderPath, _images[i].PathToModifiedImage.Substring(_images[i].PathToModifiedImage.IndexOf("Roaming", StringComparison.OrdinalIgnoreCase))) + "'");
             }
 
             string _imgs_path = Path.Combine(localStateFolderPath, "Roaming", "WTDawson", "WeatherCollector_TimelapseCreator", id, "image_list.txt");
@@ -193,6 +194,7 @@ namespace WeatherCollector_TimelapseCreator.Core.Generation
             try
             {
                 Debug.WriteLine("Launching FFMPEG...");
+                progress.Report(new Progress() { Step = 100, StepText = "Generating timelapse... (3/3)", ProgressStep = 0, PStepText = $"Running FFMPEG (Can take a while)", Indeterminate = true });
                 Debug.WriteLine(_imgs.ToArray().Length);
                 //FFMpeg.JoinImageSequence(Path.Combine(localStateFolderPath, "Roaming", "WTDawson", "WeatherCollector_TimelapseCreator", id, "output.mp4"), Globals.Info.FrameRate, _imgs.ToArray());
 
@@ -204,15 +206,15 @@ namespace WeatherCollector_TimelapseCreator.Core.Generation
 
                 // Using some totally-not-dodgy-method-of-using-FFMPEG by Bing AI
                 //string ffmpegCommand = $"-framerate 30 -pattern_type glob -i \"{string.Join("\\", parts)}\\*.bmp\" -s:v 1920x1080 -c:v libx264 -crf 17 -pix_fmt yuv420p \"{Path.Combine(localStateFolderPath, "Roaming", "WTDawson", "WeatherCollector_TimelapseCreator", id, "output.mp4")}\"";
-                string ffmpegCommand = $"-framerate {info.FrameRate} -f concat -safe 0 -i \"{_imgs_path}\" -s:v {w}x{h} -c:v libx264 -crf 17 -pix_fmt yuv420p \"{Path.Combine(localStateFolderPath, "Roaming", "WTDawson", "WeatherCollector_TimelapseCreator", id, "output.mp4")}\"";
+                string ffmpegCommand = $"-r {info.FrameRate} -f concat -safe 0 -i \"{_imgs_path}\" -s:v {w}x{h} -c:v libx264 -crf 17 -pix_fmt yuv420p \"{Path.Combine(localStateFolderPath, "Roaming", "WTDawson", "WeatherCollector_TimelapseCreator", id, "output.mp4")}\"";
                 Debug.WriteLine(ffmpegCommand);
 
                 ProcessStartInfo processInfo = new ProcessStartInfo("ffmpeg", ffmpegCommand)
                 {
                     //CreateNoWindow = true,
                     //UseShellExecute = false,
-                    //RedirectStandardOutput = true,
-                    //RedirectStandardError = true
+                    RedirectStandardOutput = true,
+                    RedirectStandardError = true
                 };
 
                 using (Process process = new Process())
