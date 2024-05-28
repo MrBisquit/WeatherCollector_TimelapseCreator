@@ -64,6 +64,7 @@ namespace WeatherCollector_TimelapseCreator.Core.Generation
             public string PStepText = "Downloading images... (0/288)";
             public int ProgressStep = 0;
             public bool Indeterminate = false;
+            public bool Completed = false;
         }
 
         public async Task StartGeneration(IProgress<Progress> progress)
@@ -74,9 +75,12 @@ namespace WeatherCollector_TimelapseCreator.Core.Generation
             int h = 100;
 
             // Begin downloading the images
+            Debug.WriteLine(info.DateRange.Count + " total days");
             for (int i = 0; i < info.DateRange.Count; i++)
             {
                 Types.Day day = await Data.RequestDay(Globals.Config.AuthToken, info.DateRange[i].Year.ToString(), info.DateRange[i].Month.ToString(), info.DateRange[i].Day.ToString());
+
+                if(day.DataPoints == null) continue;
 
                 for (int j = 0; j < day.DataPoints.Count; j++)
                 {
@@ -93,30 +97,50 @@ namespace WeatherCollector_TimelapseCreator.Core.Generation
                     progress.Report(new Progress() { Step = 100 / 3, StepText = "Downloading... (1/3)", ProgressStep = (int)(((double)i / (double)info.DateRange.Count) * 100), PStepText = $"Downloading images... ({j}/{info.DateRange.Count * 288})" });
 
                     Bitmap bm;
-                    try
+
+                    // Check if it's in the cache
+                    DateTime dt = Utils.ParseDateString(day.DataPoints[i].Date);
+                    Cache.CacheItem? _cacheItem = Cache.CacheManager.SearchForCacheItem(dt.Year.ToString(), dt.Month.ToString(), dt.Day.ToString(), j.ToString());
+                    if (_cacheItem != null)
                     {
-                        bm = new Bitmap(await Data.RequestSpecificImageBitmap(Globals.Config.AuthToken, info.DateRange[i].Year.ToString(), info.DateRange[i].Month.ToString(), info.DateRange[i].Day.ToString(), j.ToString()));
-                    } catch
+                        bm = new Bitmap(new Bitmap(_cacheItem.Location)); // Unlock it since it hates being loaded from files lol
+                    }
+                    else
                     {
-                        // Probably an issue related to something like rate-limiting or the server just gave up for a second
-                        Debug.WriteLine("Failed, retrying in 1.5 seconds");
-                        await Task.Delay(1500);
                         try
                         {
                             bm = new Bitmap(await Data.RequestSpecificImageBitmap(Globals.Config.AuthToken, info.DateRange[i].Year.ToString(), info.DateRange[i].Month.ToString(), info.DateRange[i].Day.ToString(), j.ToString()));
-                        } catch
+                        }
+                        catch
                         {
-                            // The server decided that it hates you
-                            Debug.WriteLine("Failed, retrying in 5 seconds (Last attempt)");
-                            await Task.Delay(5);
+                            // Probably an issue related to something like rate-limiting or the server just gave up for a second
+                            Debug.WriteLine("Failed, retrying in 1.5 seconds");
+                            await Task.Delay(1500);
                             try
                             {
                                 bm = new Bitmap(await Data.RequestSpecificImageBitmap(Globals.Config.AuthToken, info.DateRange[i].Year.ToString(), info.DateRange[i].Month.ToString(), info.DateRange[i].Day.ToString(), j.ToString()));
-                            } catch
+                            }
+                            catch
                             {
-                                bm = new Bitmap(w, h);
+                                // The server decided that it hates you
+                                Debug.WriteLine("Failed, retrying in 5 seconds (Last attempt)");
+                                await Task.Delay(5);
+                                try
+                                {
+                                    bm = new Bitmap(await Data.RequestSpecificImageBitmap(Globals.Config.AuthToken, info.DateRange[i].Year.ToString(), info.DateRange[i].Month.ToString(), info.DateRange[i].Day.ToString(), j.ToString()));
+                                }
+                                catch
+                                {
+                                    bm = new Bitmap(w, h);
+                                }
                             }
                         }
+                    }
+
+                    // Now add it to the cache if it wasn't in previously
+                    if(_cacheItem == null)
+                    {
+                        Cache.CacheManager.CacheItem(dt.Year.ToString(), dt.Month.ToString(), dt.Day.ToString(), j.ToString(), bm);
                     }
 
                     if(i == 0 && j == 0)
@@ -126,7 +150,8 @@ namespace WeatherCollector_TimelapseCreator.Core.Generation
                     }
 
                     bm.Save(image.PathToImage);
-                    bm = new Bitmap(1, 1);
+                    bm = null;
+                    _cacheItem = null;
                     GC.Collect();
 
                     _images.Add(image);
@@ -211,10 +236,10 @@ namespace WeatherCollector_TimelapseCreator.Core.Generation
 
                 ProcessStartInfo processInfo = new ProcessStartInfo("ffmpeg", ffmpegCommand)
                 {
-                    //CreateNoWindow = true,
+                    CreateNoWindow = true,
                     //UseShellExecute = false,
-                    RedirectStandardOutput = true,
-                    RedirectStandardError = true
+                    //RedirectStandardOutput = true,
+                    //RedirectStandardError = true
                 };
 
                 using (Process process = new Process())
@@ -228,6 +253,8 @@ namespace WeatherCollector_TimelapseCreator.Core.Generation
                     else
                         Debug.WriteLine("Error creating timelapse video.");
                 }
+
+                progress.Report(new Progress() { Step = 100, StepText = "Generating timelapse... (3/3)", ProgressStep = 100, PStepText = $"FFMPEG process exited", Indeterminate = false, Completed = true });
             }
             catch (Exception ex)
             {

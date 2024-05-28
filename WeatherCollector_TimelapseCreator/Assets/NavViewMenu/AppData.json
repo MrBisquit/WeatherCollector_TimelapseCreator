@@ -32,6 +32,14 @@
           "ImagePath": "ms-appx:///Assets/icon.png",
           "ImageIconPath": "ms-appx:///Assets/icon.png",
           "HideItem": true
+        },
+        {
+          "UniqueId": "WeatherCollector_TimelapseCreator.Views.MainCompletedPage",
+          "Title": "WeatherCollector_TimelapseCreator",
+          "Subtitle": "WeatherCollector_TimelapseCreator",
+          "ImagePath": "ms-appx:///Assets/icon.png",
+          "ImageIconPath": "ms-appx:///Assets/icon.png",
+          "HideItem": true
         }
       ]
     }

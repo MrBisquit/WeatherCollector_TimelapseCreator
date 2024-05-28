@@ -26,6 +26,7 @@
     </None>
   </ItemGroup>
   <ItemGroup>
+    <None Remove="Views\MainCompletedPage.xaml" />
     <None Remove="Views\MainPreparingPage.xaml" />
     <None Remove="Views\MainSelectionPage.xaml" />
   </ItemGroup>
@@ -50,6 +51,10 @@
     <ProjectCapability Include="Msix" />
   </ItemGroup>
   <ItemGroup>
+    <Page Update="Views\MainCompletedPage.xaml">
+      <XamlRuntime>$(DefaultXamlRuntime)</XamlRuntime>
+      <SubType>Designer</SubType>
+    </Page>
     <Page Update="Views\MainPreparingPage.xaml">
       <Generator>MSBuild:Compile</Generator>
     </Page>

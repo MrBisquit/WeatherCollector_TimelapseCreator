@@ -99,6 +99,9 @@ public sealed partial class HomeLandingPage : Page
         Globals.Preview = await Core.Data.RequestLatestImageBitmap(Globals.Config.AuthToken);
         Globals.BasePreview = Globals.Preview;
 
+        // Initialise the cache
+        Core.Cache.CacheManager.Initialise();
+
         // Redirecting to the main page
         App.Current.JsonNavigationViewService.NavigateTo("WeatherCollector_TimelapseCreator.Views.MainSelectionPage");
     }

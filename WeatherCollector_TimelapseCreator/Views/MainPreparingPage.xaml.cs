@@ -55,6 +55,11 @@ namespace WeatherCollector_TimelapseCreator.Views
             PStep.Text = e.PStepText;
             PStepPB.Value = e.ProgressStep;
             PStepPB.IsIndeterminate = e.Indeterminate;
+
+            if(e.Completed)
+            {
+                App.Current.JsonNavigationViewService.NavigateTo("WeatherCollector_TimelapseCreator.Views.MainCompletedPage");
+            }
         }
     }
 }
